@@ -2,41 +2,59 @@ const form = document.getElementById('novoItem')
 const lista = document.getElementById('lista')
 const inputNome = document.getElementById('nome')
 const inputQuantidade = document.getElementById('quantidade')
-var listaItens = []
-var localStorageItens = []
 
-form.addEventListener('submit',(evento) =>{
-    evento.preventDefault()
-    
-    criarItem(evento.target.elements['nome'].value, evento.target.elements['quantidade'].value)
-    localStorage.setItem('itens', JSON.stringify(listaItens))
-    limparCampos()
-    
-    var itensLocalStorage = localStorage.getItem('itens')
-    updateElemento(JSON.parse(itensLocalStorage))
+var itens = JSON.parse(localStorage.getItem('itens')) || []
+
+itens.forEach((elemento) => {
+    criarElemento(elemento)
     
     })
+    
+form.addEventListener('submit',(evento) =>{
+    evento.preventDefault()
+    const nome = evento.target.elements['nome']
+    const quantidade = evento.target.elements['quantidade']
+    
+    let existe = itens.find(elemento => elemento.nome === nome.value)
 
 
-function criarItem(nome, quantidade){
     const item = {
-        'nome':nome,
-        'quantidade':quantidade}
+        'nome':nome.value,
+        'quantidade':quantidade.value}
+        
+        if(existe){
+            item.id = existe.id
+            atualizaElemento(item)
+        }  else {
+            item.id = itens.length
+            criarElemento(item)
+            itens.push(item)
+            
+        }
 
-        listaItens.push(item)
+        localStorage.setItem('itens', JSON.stringify(itens))
+    limparCampos()
+        
+    })
+
+    function criarElemento(elemento){
+        let novoComponente = document.createElement('li')
+        novoComponente.classList.add('item')
+        let numeroComponente =  document.createElement('strong')
+        numeroComponente.dataset.id = elemento.id
+        numeroComponente.innerHTML = elemento.quantidade
+        novoComponente.appendChild(numeroComponente)
+        novoComponente.innerHTML += elemento.nome
+       lista.appendChild(novoComponente)
+    }
+
+    function atualizaElemento(item){
+    document.querySelector("[data-id='"+item.id+"']").innerHTML = item.quantidade
+       
     }
     
-function updateElemento(dados){
-   dados.forEach((elemento) => {
-        for(var i=0; i<dados.length;i++){
-       lista.innerHTML = `<li class='item'><strong>${elemento.quantidade}</strong>${elemento.nome}</li>`
-        }
-})}
-   
-
-
-function limparCampos(){
+    function limparCampos(){
     inputNome.value = ''
     inputQuantidade.value = ''
     inputNome.focus()
-}
+    }
