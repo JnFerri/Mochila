@@ -25,8 +25,9 @@ form.addEventListener('submit',(evento) =>{
         if(existe){
             item.id = existe.id
             atualizaElemento(item)
+            itens[itens.findIndex(elemento => elemento.id === existe.id)] = item
         }  else {
-            item.id = itens.length
+            item.id = itens[itens.length -1] ? itens[itens.length -1 ].id + 1 : 0
             criarElemento(item)
             itens.push(item)
             
@@ -45,12 +46,28 @@ form.addEventListener('submit',(evento) =>{
         numeroComponente.innerHTML = elemento.quantidade
         novoComponente.appendChild(numeroComponente)
         novoComponente.innerHTML += elemento.nome
+        novoComponente.appendChild(botaoRemover(elemento.id))
        lista.appendChild(novoComponente)
     }
 
     function atualizaElemento(item){
     document.querySelector("[data-id='"+item.id+"']").innerHTML = item.quantidade
        
+    }
+
+    function botaoRemover(id){
+        const botaoRemover = document.createElement('button')
+        botaoRemover.innerText = 'X'
+        botaoRemover.addEventListener('click', function(){
+            deletaItem(botaoRemover.parentNode, id)
+        })
+        return botaoRemover
+    }
+
+    function deletaItem(tag ,id){
+        tag.remove()
+        itens.splice(itens.findIndex(elemento => elemento.id === id), 1)
+        localStorage.setItem('itens', JSON.stringify(itens))
     }
     
     function limparCampos(){
